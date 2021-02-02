@@ -14,6 +14,8 @@
 #include "esp_spi_flash.h"
 #include "lora.h"
 
+static struct lora lora;
+
 void app_main(void)
 {
     printf("Hello world!\n");
@@ -34,12 +36,16 @@ void app_main(void)
 
     printf("Free heap: %d\n", esp_get_free_heap_size());
 
-    test1();
-    for (int i = 10; i >= 0; i--) {
-        printf("Restarting in %d seconds...\n", i);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    register_lora(&lora);
+
+    lora.init(0);
+    lora.connect();
+    lora.is_connected();
+
+    for (int i = 0; ; i++) {
+        printf("%d seconds, %d interrupts\n", i, lora.n_interrupts);
+        vTaskDelay(50 / portTICK_PERIOD_MS);
     }
-    printf("Restarting now for real.\n");
     fflush(stdout);
     esp_restart();
 }
